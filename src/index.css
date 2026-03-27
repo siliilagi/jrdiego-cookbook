@@ -525,6 +525,15 @@ a { color: var(--teal); text-decoration: none; }
 }
 .modal-close:hover { background: var(--bg-alt); color: var(--text); }
 
+/* Form must be a flex column so modal-body can scroll within it */
+.add-recipe-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .modal-body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
