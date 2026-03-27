@@ -4,6 +4,7 @@ import { SHEET_ID } from './config';
 import Header from './components/Header';
 import RecipeList from './components/RecipeList';
 import RecipeDetail from './components/RecipeDetail';
+import AddRecipeModal from './components/AddRecipeModal';
 
 function SetupBanner() {
   return (
@@ -47,6 +48,7 @@ function ErrorScreen({ message }) {
 export default function App() {
   const { recipes, ingredientsByRecipe, filterOptions, loading, error } = useRecipes();
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [showAddModal, setShowAddModal]     = useState(false);
   const [search, setSearch]   = useState('');
   const [filters, setFilters] = useState({
     mealType: '', cuisine: '', cookMethod: '',
@@ -70,8 +72,19 @@ export default function App() {
       <Header
         onHome={handleHome}
         onSurpriseMe={handleSurpriseMe}
+        onAddRecipe={() => setShowAddModal(true)}
         recipesLoaded={recipes.length > 0}
       />
+
+      {showAddModal && (
+        <AddRecipeModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={(name) => {
+            setShowAddModal(false);
+            setSearch(name);
+          }}
+        />
+      )}
 
       {error === 'setup' && <SetupBanner />}
       {error && error !== 'setup' && <ErrorScreen message={error} />}
