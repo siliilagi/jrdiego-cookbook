@@ -527,7 +527,10 @@ a { color: var(--teal); text-decoration: none; }
 
 .modal-body {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   flex: 1;
+  min-height: 0;
   padding: 1.25rem 1.5rem;
   display: flex;
   flex-direction: column;

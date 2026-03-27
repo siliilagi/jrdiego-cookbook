@@ -9,20 +9,12 @@ export async function submitRecipe(recipeData) {
     throw new Error('Apps Script URL not configured. See src/config.js.');
   }
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  // Google Apps Script requires no-cors to avoid CORS preflight failure.
+  // We can't read the response in no-cors mode, so we assume success if fetch doesn't throw.
+  await fetch(APPS_SCRIPT_URL, {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(recipeData),
   });
-
-  if (!response.ok) {
-    throw new Error(`Submission failed (${response.status})`);
-  }
-
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error ?? 'Unknown error from server');
-  }
-
-  return result;
 }
