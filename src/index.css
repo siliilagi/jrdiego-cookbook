@@ -226,7 +226,12 @@ a { color: var(--teal); text-decoration: none; }
 }
 
 .recipe-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .recipe-list-heading {
@@ -235,6 +240,35 @@ a { color: var(--teal); text-decoration: none; }
   color: var(--text-muted);
   font-weight: 600;
 }
+
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.sort-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sort-select {
+  padding: 0.4rem 0.7rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  background: var(--bg-card);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.sort-select:focus      { border-color: var(--teal-light); }
+.sort-select--active    { border-color: var(--teal); background: var(--teal-xlight); color: var(--teal); font-weight: 600; }
 
 /* ─── Recipe Grid ────────────────────────────────────────────── */
 .recipe-grid {
