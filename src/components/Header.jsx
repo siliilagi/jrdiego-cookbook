@@ -5,7 +5,7 @@ export default function Header({ onHome, onSurpriseMe, recipesLoaded }) {
         <button className="header-logo" onClick={onHome} aria-label="Home">
           <span className="header-flower" aria-hidden="true">🌺</span>
           <div className="header-titles">
-            <span className="header-title">Diego Family Cookbook</span>
+            <span className="header-title">Jr Diego ʻOhana Cookbook</span>
             <span className="header-subtitle">Hāna, Maui · Est. 1998</span>
           </div>
         </button>
