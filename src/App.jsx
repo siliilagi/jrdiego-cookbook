@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useRecipes } from './hooks/useRecipes';
 import { SHEET_ID } from './config';
 import Header from './components/Header';
+import NavBar from './components/NavBar';
+import HomePage from './components/HomePage';
 import RecipeList from './components/RecipeList';
 import RecipeDetail from './components/RecipeDetail';
 import AddRecipeModal from './components/AddRecipeModal';
@@ -47,23 +49,51 @@ function ErrorScreen({ message }) {
 
 export default function App() {
   const { recipes, ingredientsByRecipe, filterOptions, loading, error } = useRecipes();
+  const [activePage, setActivePage]     = useState('home');
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [showAddModal, setShowAddModal]     = useState(false);
+  const [prevPage, setPrevPage]         = useState('home');
+  const [showAddModal, setShowAddModal] = useState(false);
   const [search, setSearch]   = useState('');
   const [filters, setFilters] = useState({
     mealType: '', cuisine: '', cookMethod: '',
     primaryProtein: '', contributor: '', occasion: '',
   });
 
-  function handleSurpriseMe() {
-    if (recipes.length === 0) return;
-    const r = recipes[Math.floor(Math.random() * recipes.length)];
-    setSelectedRecipe(r);
+  function handleSelectRecipe(recipe) {
+    setPrevPage(activePage);
+    setSelectedRecipe(recipe);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleBack() {
+    setSelectedRecipe(null);
+    setActivePage(prevPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function handleHome() {
     setSelectedRecipe(null);
+    setActivePage('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleSurpriseMe() {
+    if (recipes.length === 0) return;
+    const r = recipes[Math.floor(Math.random() * recipes.length)];
+    handleSelectRecipe(r);
+  }
+
+  // Browse to recipes tab, optionally pre-setting a filter
+  function handleBrowse(filterOverride = {}) {
+    setFilters({ mealType: '', cuisine: '', cookMethod: '', primaryProtein: '', contributor: '', occasion: '', ...filterOverride });
+    setSearch('');
+    setActivePage('recipes');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function handleNavChange(page) {
+    setSelectedRecipe(null);
+    setActivePage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -76,12 +106,17 @@ export default function App() {
         recipesLoaded={recipes.length > 0}
       />
 
+      {!selectedRecipe && (
+        <NavBar activePage={activePage} setActivePage={handleNavChange} />
+      )}
+
       {showAddModal && (
         <AddRecipeModal
           onClose={() => setShowAddModal(false)}
           onSuccess={(name) => {
             setShowAddModal(false);
             setSearch(name);
+            setActivePage('recipes');
           }}
         />
       )}
@@ -95,16 +130,20 @@ export default function App() {
           <RecipeDetail
             recipe={selectedRecipe}
             ingredients={ingredientsByRecipe[selectedRecipe['Name']] ?? []}
-            onBack={handleHome}
+            onBack={handleBack}
+          />
+        ) : activePage === 'home' ? (
+          <HomePage
+            recipes={recipes}
+            ingredientsByRecipe={ingredientsByRecipe}
+            onSelectRecipe={handleSelectRecipe}
+            onBrowse={handleBrowse}
           />
         ) : (
           <RecipeList
             recipes={recipes}
             ingredientsByRecipe={ingredientsByRecipe}
-            onSelectRecipe={(r) => {
-              setSelectedRecipe(r);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
+            onSelectRecipe={handleSelectRecipe}
             search={search}
             setSearch={setSearch}
             filters={filters}
