@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// Change '/diego-cookbook/' to match your GitHub repo name
-// e.g. if your repo is github.com/yourname/family-recipes → '/family-recipes/'
-export default defineConfig({
+// Base path applies only in production (GitHub Pages).
+// In dev mode, the app runs at localhost:5173/ as normal.
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: '/jrdiego-cookbook/',
-})
+  base: command === 'build' ? '/jrdiego-cookbook/' : '/',
+}))
