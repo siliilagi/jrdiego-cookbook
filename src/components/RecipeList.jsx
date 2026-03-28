@@ -1,7 +1,42 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import SearchBar from './SearchBar';
 import FilterPanel from './FilterPanel';
 import RecipeCard from './RecipeCard';
+
+const SORT_OPTIONS = [
+  { value: 'default',      label: 'Default' },
+  { value: 'name-az',      label: 'Name A–Z' },
+  { value: 'name-za',      label: 'Name Z–A' },
+  { value: 'time-asc',     label: 'Cook Time ↑' },
+  { value: 'time-desc',    label: 'Cook Time ↓' },
+  { value: 'difficulty-asc',  label: 'Easiest First' },
+  { value: 'difficulty-desc', label: 'Hardest First' },
+  { value: 'contributor',  label: 'Contributor A–Z' },
+];
+
+const DIFFICULTY_RANK = { Easy: 1, Medium: 2, Hard: 3 };
+
+function sortRecipes(recipes, sortBy) {
+  const arr = [...recipes];
+  switch (sortBy) {
+    case 'name-az':
+      return arr.sort((a, b) => (a['Name'] ?? '').localeCompare(b['Name'] ?? ''));
+    case 'name-za':
+      return arr.sort((a, b) => (b['Name'] ?? '').localeCompare(a['Name'] ?? ''));
+    case 'time-asc':
+      return arr.sort((a, b) => (parseFloat(a['Cook Time (mins)']) || 999) - (parseFloat(b['Cook Time (mins)']) || 999));
+    case 'time-desc':
+      return arr.sort((a, b) => (parseFloat(b['Cook Time (mins)']) || 0) - (parseFloat(a['Cook Time (mins)']) || 0));
+    case 'difficulty-asc':
+      return arr.sort((a, b) => (DIFFICULTY_RANK[a['Difficulty']] ?? 2) - (DIFFICULTY_RANK[b['Difficulty']] ?? 2));
+    case 'difficulty-desc':
+      return arr.sort((a, b) => (DIFFICULTY_RANK[b['Difficulty']] ?? 2) - (DIFFICULTY_RANK[a['Difficulty']] ?? 2));
+    case 'contributor':
+      return arr.sort((a, b) => (a['Contributor'] ?? '').localeCompare(b['Contributor'] ?? ''));
+    default:
+      return arr;
+  }
+}
 
 export default function RecipeList({
   recipes,
@@ -11,31 +46,30 @@ export default function RecipeList({
   filters, setFilters,
   filterOptions,
 }) {
+  const [sortBy, setSortBy] = useState('default');
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
 
-    return recipes.filter(recipe => {
-      // ── Search ───────────────────────────────────────────────────────
+    const result = recipes.filter(recipe => {
       if (q) {
         const nameMatch = recipe['Name']?.toLowerCase().includes(q);
         const ingMatch  = (ingredientsByRecipe[recipe['Name']] ?? [])
           .some(i => i['Ingredient Name']?.toLowerCase().includes(q));
         if (!nameMatch && !ingMatch) return false;
       }
-
-      // ── Filters ──────────────────────────────────────────────────────
-      if (filters.mealType      && recipe['Meal Type']       !== filters.mealType)       return false;
-      if (filters.cuisine       && recipe['Cuisine']         !== filters.cuisine)         return false;
-      if (filters.cookMethod    && recipe['Cook Method']     !== filters.cookMethod)      return false;
+      if (filters.mealType       && recipe['Meal Type']       !== filters.mealType)       return false;
+      if (filters.cuisine        && recipe['Cuisine']         !== filters.cuisine)         return false;
+      if (filters.cookMethod     && recipe['Cook Method']     !== filters.cookMethod)      return false;
       if (filters.primaryProtein && recipe['Primary Protein'] !== filters.primaryProtein) return false;
-      if (filters.contributor   && recipe['Contributor']     !== filters.contributor)     return false;
-      if (filters.occasion      && recipe['Occasion']        !== filters.occasion)        return false;
-
+      if (filters.contributor    && recipe['Contributor']     !== filters.contributor)     return false;
+      if (filters.occasion       && recipe['Occasion']        !== filters.occasion)        return false;
       return true;
     });
-  }, [recipes, ingredientsByRecipe, search, filters]);
+
+    return sortRecipes(result, sortBy);
+  }, [recipes, ingredientsByRecipe, search, filters, sortBy]);
 
   return (
     <main className="recipe-list-page">
@@ -61,6 +95,19 @@ export default function RecipeList({
               ? `${filtered.length} Recipe${filtered.length !== 1 ? 's' : ''} Found`
               : `All Recipes (${recipes.length})`}
           </h2>
+          <div className="sort-row">
+            <label className="sort-label" htmlFor="sort-select">Sort</label>
+            <select
+              id="sort-select"
+              className={`sort-select ${sortBy !== 'default' ? 'sort-select--active' : ''}`}
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+            >
+              {SORT_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {filtered.length === 0 ? (
