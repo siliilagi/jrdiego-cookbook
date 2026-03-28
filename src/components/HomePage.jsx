@@ -13,7 +13,6 @@ const MEAL_TYPES = [
 ];
 
 export default function HomePage({ recipes, ingredientsByRecipe, onSelectRecipe, onBrowse }) {
-  // Stats
   const stats = useMemo(() => {
     const contributors = new Set(recipes.map(r => r['Contributor']).filter(Boolean));
     const cuisines     = new Set(recipes.map(r => r['Cuisine']).filter(Boolean));
@@ -26,14 +25,11 @@ export default function HomePage({ recipes, ingredientsByRecipe, onSelectRecipe,
     };
   }, [recipes]);
 
-  // 3 random featured recipes (stable per session)
   const featured = useMemo(() => {
     if (recipes.length === 0) return [];
-    const shuffled = [...recipes].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
+    return [...recipes].sort(() => Math.random() - 0.5).slice(0, 3);
   }, [recipes]);
 
-  // Meal type counts
   const mealTypeCounts = useMemo(() => {
     const counts = {};
     for (const r of recipes) {
@@ -46,45 +42,53 @@ export default function HomePage({ recipes, ingredientsByRecipe, onSelectRecipe,
   return (
     <div className="home-page">
 
-      {/* ── Hero ───────────────────────────────────────── */}
+      {/* ── Book Cover Hero ─────────────────────────────── */}
       <section className="home-hero">
+        <div className="hero-cover-wrap">
+          <div className="hero-cover-lei" aria-hidden="true">
+            {'🌸'.repeat(18)}
+          </div>
+          <div className="hero-cover-inner">
+            <img
+              src="cookbook-cover.jpg"
+              alt="Winona Diego's Cook Book — Issue 1, December 25, 1998"
+              className="hero-cover-img"
+              onError={e => { e.currentTarget.style.display = 'none'; }}
+            />
+            <div className="hero-cover-text">
+              <p className="hero-cover-label">The Original</p>
+              <h1 className="hero-cover-title">Winona Diego's<br />Cook Book</h1>
+              <p className="hero-cover-issue">Issue 1 · December 25, 1998</p>
+            </div>
+          </div>
+        </div>
+
         <div className="hero-content">
-          <h1 className="hero-title">
-            Welcome to the<br />
-            <span className="hero-title-accent">Jr Diego ʻOhana Cookbook</span>
-          </h1>
+          <h2 className="hero-subtitle-heading">Jr Diego ʻOhana Cookbook</h2>
           <p className="hero-subtitle">
             Generations of family recipes from Hāna, Maui — lovingly gathered
-            from Winona Diego's Cookbook (1998) and passed down through the ʻohana.
+            and kept alive for the whole ʻohana.
           </p>
           <button className="btn btn-hero" onClick={() => onBrowse()}>
             Browse All Recipes →
           </button>
-        </div>
-        <div className="hero-flowers" aria-hidden="true">
-          <span>🌺</span><span>🌸</span><span>🌺</span>
         </div>
       </section>
 
       {/* ── Stats ──────────────────────────────────────── */}
       {recipes.length > 0 && (
         <section className="home-stats">
-          <div className="stat-card">
-            <span className="stat-card-number">{stats.total}</span>
-            <span className="stat-card-label">Recipes</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-card-number">{stats.contributors}</span>
-            <span className="stat-card-label">Contributors</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-card-number">{stats.cuisines}</span>
-            <span className="stat-card-label">Cuisines</span>
-          </div>
-          <div className="stat-card">
-            <span className="stat-card-number">{stats.originals}</span>
-            <span className="stat-card-label">Original Recipes</span>
-          </div>
+          {[
+            { number: stats.total,        label: 'Recipes' },
+            { number: stats.contributors, label: 'Contributors' },
+            { number: stats.cuisines,     label: 'Cuisines' },
+            { number: stats.originals,    label: 'Original Recipes' },
+          ].map(({ number, label }) => (
+            <div className="stat-card" key={label}>
+              <span className="stat-card-number">{number}</span>
+              <span className="stat-card-label">{label}</span>
+            </div>
+          ))}
         </section>
       )}
 
@@ -112,7 +116,7 @@ export default function HomePage({ recipes, ingredientsByRecipe, onSelectRecipe,
       {featured.length > 0 && (
         <section className="home-section">
           <h2 className="home-section-title">Featured Recipes</h2>
-          <p className="home-section-sub">A few picks from the cookbook — refresh for different ones.</p>
+          <p className="home-section-sub">A few picks — refresh for different ones.</p>
           <div className="featured-grid">
             {featured.map(recipe => (
               <RecipeCard
@@ -125,7 +129,6 @@ export default function HomePage({ recipes, ingredientsByRecipe, onSelectRecipe,
         </section>
       )}
 
-      {/* ── Footer ─────────────────────────────────────── */}
       <footer className="home-footer">
         <p>🌺 In memory of all the hands that cooked these meals with love.</p>
       </footer>
