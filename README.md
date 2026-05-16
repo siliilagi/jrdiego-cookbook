@@ -1,5 +1,7 @@
 # 🌺 Diego Family Cookbook
 
+Winona Diego's handwritten cookbook from 1998 has fed the Diego ʻohana for decades. This app brings those 142 recipes into a searchable, filterable, mobile-friendly web app — built so the family can access them from anywhere, scale servings on the fly, and never lose a recipe again.
+
 A family recipe web app for the Diego ohana — recipes from Hāna, Maui, sourced from Winona Diego's Cookbook (1998).
 
 **Live features:**
